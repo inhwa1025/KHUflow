@@ -1,0 +1,36 @@
+apiVersion: apps/v1  
+kind: Deployment  
+metadata:  
+  namespace: spark  
+  name: my-notebook-deployment  
+  labels:  
+    app: my-notebook  
+spec:  
+  replicas: 1  
+  selector:  
+    matchLabels:  
+      app: my-notebook  
+  template:  
+    metadata:  
+      labels:  
+        app: my-notebook  
+    spec:  
+      serviceAccountName: spark  
+      securityContext:  
+        fsGroup: 100  
+        runAsUser: 1000  
+      containers:  
+      - name: my-notebook  
+        image: jupyter/pyspark-notebook  
+        ports:  
+          - containerPort: 8888  
+        volumeMounts:  
+          - mountPath: /home/jovyan/work  
+            name: my-notebook-pv  
+        resources:  
+          limits:  
+            memory: 2Gi  
+      volumes:  
+        - name: my-notebook-pv  
+          persistentVolumeClaim:  
+            claimName: my-notebook-pvc
