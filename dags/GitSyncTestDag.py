@@ -52,48 +52,4 @@ select_version = BashOperator(
     dag=dag
 )
 
-
-def xcom_pull_version(**context):
-    result = context["task_instance"].xcom_pull(task_ids='redis_version_select')
-    Variable.set('redis_parsing_versions', result)
-    return result
-
-
-set_versions = PythonOperator(
-    task_id='set_versions_variable',
-    python_callable=xcom_pull_version,
-    dag=dag
-)
-
-print_version = BashOperator(
-    task_id='print_versions_variable',
-    bash_command=f"echo {Variable.get('redis_parsing_versions')}",
-    dag=dag
-)
-
-versions = Variable.get('redis_parsing_versions')
-versions = versions.split()
-versions = versions[-4:]
-
-docker_tasks = []
-parsing_tasks = []
-
-for i, ver in enumerate(versions):
-    docker_tasks.append(BashOperator(
-        task_id=f"docker_redis_{ver}",
-        bash_command=f"echo {ver}",
-        dag=dag
-    ))
-
-    parsing_tasks.append(BashOperator(
-        task_id=f"parsing_redis_{ver}",
-        bash_command=f"echo {ver}",
-        dag=dag
-    ))
-
-    if i == 0:
-        start_dag >> version_crawling >> select_version >> set_versions >> print_version >> docker_tasks[i] >> parsing_tasks[i]
-    else:
-        parsing_tasks[i-1] >> docker_tasks[i] >> parsing_tasks[i]
-
-parsing_tasks[-1] >> end_dag
+start_dag >> version_crawling >> select_version >> end_dag
