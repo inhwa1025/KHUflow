@@ -8,9 +8,9 @@ spec:
   type: Python
   pythonVersion: "3"
   mode: cluster
-  image: "private-repo/test/spark-3.1.2-util-sample:1.1.1" #custom
+  image: "spark-py:1.0.0" #custom
   imagePullPolicy: Always
-  mainApplicationFile: local:///app/main.py  #custom
+  mainApplicationFile: local:///opt/airflow/dags/repo/dags/main.py  #custom
   sparkVersion: "3.1.2"
   restartPolicy:
     #type: Never
