@@ -38,18 +38,11 @@ end_dag = DummyOperator(
     dag=dag
 )
 
-version_crawling = BashOperator(
-    task_id='redis_version_crawling',
-    bash_command='python /opt/airflow/codes/redisVersionCrawling.py 5.0.0',
+print_pwd = BashOperator(
+    task_id='print_pwd',
+    bash_command='echo $pwd',
     do_xcom_push=True,
     dag=dag
 )
 
-select_version = BashOperator(
-    task_id='redis_version_select',
-    bash_command="python /opt/airflow/codes/redisVersionSelect.py {{ task_instance.xcom_pull(task_ids='redis_version_crawling') }}",
-    do_xcom_push=True,
-    dag=dag
-)
-
-start_dag >> version_crawling >> select_version >> end_dag
+start_dag >> print_pwd >> end_dag
