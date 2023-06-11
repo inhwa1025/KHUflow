@@ -48,7 +48,7 @@ t1 = SparkKubernetesOperator(
     task_id='task1-spark',
     namespace="airflow",
     application_file=pathlib.Path("/opt/airflow/dags/repo/dags/sample-sko-spark.yaml").read_text(), #officially know bug
-    kubernetes_conn_id="kubeConnTest", #ns default in airflow connection UI
+    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
     do_xcom_push=True,
     dag=dag
 )
@@ -64,7 +64,7 @@ t2 = SparkKubernetesSensor(
     task_id='sample-sko-spark-log',
     namespace="airflow",
     application_name="{{ task_instance.xcom_pull(task_ids='task1-spark')['metadata']['name'] }}",
-    kubernetes_conn_id="kubeConnTest", #ns default in airflow connection UI
+    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
     attach_log=True, #
     dag=dag,
 )
