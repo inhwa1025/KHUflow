@@ -32,7 +32,7 @@ dag = DAG(
     schedule_interval=timedelta(days=1),
     start_date=datetime(2021, 1, 1),
     catchup=False,
-    tags=['sample','hgkim']
+    tags=['sample']
 )
 
 ############################
