@@ -16,8 +16,9 @@ default_args = {
     'start_date': days_ago(1),
     'retries': 3,
     'retry_delay': timedelta(seconds=10),
-    'email_on_failure': False,
-    'email_on_retry': False,
+    'email_on_success': True,
+    'email_on_failure': True,
+    'email_on_retry': True,
     'email': 'inhwa.jo@nhn.com',
 }
 
