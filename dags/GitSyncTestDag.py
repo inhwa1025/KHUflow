@@ -39,7 +39,7 @@ end_dag = DummyOperator(
 )
 
 t1 = BashOperator(
-    task_id='spark-test',
+    task_id='spark-task',
     bash_command='echo $pwd',
     do_xcom_push=True,
     dag=dag
