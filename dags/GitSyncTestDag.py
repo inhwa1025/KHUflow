@@ -3,6 +3,8 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.providers.cncf.kubernetes.operators.spark_kubernetes import SparkKubernetesOperator
+from airflow.providers.cncf.kubernetes.sensors.spark_kubernetes import SparkKubernetesSensor
 from airflow.utils.dates import days_ago
 from datetime import datetime, timedelta
 
@@ -39,17 +41,28 @@ end_dag = DummyOperator(
 )
 
 t1 = BashOperator(
+    task_id='pre-spark-task',
+    bash_command='echo $pwd',
+    do_xcom_push=True,
+    dag=dag
+)
+
+t2 = SparkKubernetesOperator(
     task_id='spark-task',
-    bash_command='echo $pwd',
+    namespace="airflow",
+    application_file=pathlib.Path("/opt/airflow/dags/repo/dags/sample-sko-spark.yaml").read_text(),
+    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
     do_xcom_push=True,
     dag=dag
 )
 
-t2 = BashOperator(
+t3 = SparkKubernetesSensor(
     task_id='spark-log',
-    bash_command='echo $pwd',
-    do_xcom_push=True,
-    dag=dag
+    namespace="airflow",
+    application_name="{{ task_instance.xcom_pull(task_ids='task1-spark')['metadata']['name'] }}",
+    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
+    attach_log=True,
+    dag=dag,
 )
 
-start_dag >> t1 >> t2 >> end_dag
+start_dag >> t1 >> t2 >> t3 >> end_dag
