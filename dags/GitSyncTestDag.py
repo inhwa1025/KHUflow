@@ -48,22 +48,11 @@ t1 = BashOperator(
     dag=dag
 )
 
-t2 = SparkKubernetesOperator(
-    task_id='spark-task',
-    namespace="airflow",
-    application_file=pathlib.Path("/opt/airflow/dags/repo/dags/sample-sko-spark.yaml").read_text(),
-    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
+t2 = BashOperator(
+    task_id='after-spark-task',
+    bash_command='echo $pwd',
     do_xcom_push=True,
     dag=dag
 )
 
-t3 = SparkKubernetesSensor(
-    task_id='spark-log',
-    namespace="airflow",
-    application_name="{{ task_instance.xcom_pull(task_ids='task1-spark')['metadata']['name'] }}",
-    kubernetes_conn_id="kubernetes_default", #ns default in airflow connection UI
-    attach_log=True,
-    dag=dag,
-)
-
-start_dag >> t1 >> t2 >> t3 >> end_dag
+start_dag >> t1 >> t2 >> end_dag
